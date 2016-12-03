@@ -4,6 +4,7 @@ export CFLAGS+=-g -O0 -Wall -D_GNU_SOURCE
 DISTRO := $(shell ./os_detect)
 
 SUBDIRS := \
+	audit_sock_reset_race \
 	exec_execve \
 	exec_name \
 	file_create \

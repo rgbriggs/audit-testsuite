@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+
+use strict;
+
+use Test;
+BEGIN { plan tests => 4 }
+
+use File::Temp qw/ tempfile /;
+
+my $basedir = $0;
+$basedir =~ s|(.*)/[^/]*|$1|;
+
+###
+# functions
+
+sub key_gen {
+	my @chars = ("A".."Z", "a".."z");
+	my $key = "testsuite-" . time . "-";
+	$key .= $chars[rand @chars] for 1..8;
+	return $key;
+}
+
+###
+# setup
+
+# reset audit
+system("auditctl -D >& /dev/null");
+
+# create stdout/stderr sinks
+(my $fh_out, my $stdout) = tempfile(TEMPLATE => '/tmp/audit-testsuite-out-XXXX',
+				    UNLINK => 1);
+(my $fh_err, my $stderr) = tempfile(TEMPLATE => '/tmp/audit-testsuite-err-XXXX',
+				    UNLINK => 1);
+(my $fh_out2, my $stdout2) = tempfile(
+				TEMPLATE => '/tmp/audit-testsuite-out-XXXX',
+				UNLINK => 1);
+(my $fh_err2, my $stderr2) = tempfile(
+				TEMPLATE => '/tmp/audit-testsuite-err-XXXX',
+				UNLINK => 1);
+
+###
+# tests
+
+# run the tests
+system("$basedir/socket_fuzz");
+
+# test if the system is still responsive
+my $result = system("sync > $stdout 2> $stderr");
+ok($result, 0);
+
+###
+# cleanup
+
+system("auditctl -D >& /dev/null");
