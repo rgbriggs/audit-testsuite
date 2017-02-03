@@ -1,0 +1,43 @@
+#!/bin/sh
+
+testdir=/tmp/bz1412818
+
+auditctl_loop() {
+	while :
+	do
+		auditctl -l >/dev/null 2>&1 &
+		usleep 1000;
+	done
+}
+
+generate_events() {
+	while :
+	do
+		touch $testdir/touch >/dev/null 2>&1 &
+		usleep 1000;
+	done
+}
+
+auditctl -D;
+auditctl_loop&
+auditctl_loop_pid=$!
+mkdir -p $testdir;
+auditctl -D
+auditctl -f 2
+auditctl -a always,exit -F arch=b64 -S all -F path=$testdir/touch -F perm=rwa >/dev/null 2>&1
+generate_events&
+generate_events_pid=$!
+
+trap "{
+	kill $auditctl_loop_pid;
+	kill $generate_events_pid;
+	auditctl -D >/dev/null 2>&1;
+	rm -fr $testdir;
+	exit 0;
+}" SIGINT SIGTERM
+
+while :
+do
+	/etc/init.d/auditd restart 2>&1 >/dev/null
+	sleep 2;
+done
