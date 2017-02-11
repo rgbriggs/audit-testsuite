@@ -27,10 +27,13 @@ auditctl -f 2
 auditctl -a always,exit -F arch=b64 -S all -F path=$testdir/touch -F perm=rwa >/dev/null 2>&1
 generate_events&
 generate_events_pid=$!
+./occupy_portids&
+occupy_portids_pid=$!
 
 trap "{
 	kill $auditctl_loop_pid;
 	kill $generate_events_pid;
+	kill $occupy_portids_pid;
 	auditctl -D >/dev/null 2>&1;
 	rm -fr $testdir;
 	exit 0;
