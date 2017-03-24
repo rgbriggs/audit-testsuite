@@ -57,7 +57,7 @@ my $line;
 my $type;
 my $found_name = 0;
 while ($line = <$fh_out>) {
-	if ($line =~ /^type=KERN_MODULE /) {
+	if ($line =~ /^type=(KERN_MODULE|UNKNOWN\[1330\]) /) {
 		if ($line =~ / name=\"$name\"/) {
 			$found_name = 1;
 		}
@@ -75,7 +75,7 @@ $result = system("ausearch -k $key-unload > $stdout 2> $stderr");
 ok($result, 0); # Did the unlaod search find records?
 
 while ($line = <$fh_out>) {
-	if ($line =~ /^type=KERN_MODULE /) {
+	if ($line =~ /^type=(KERN_MODULE|UNKNOWN\[1330\]) /) {
 		if ($line =~ / name=\"$name\"/) {
 			$found_name = 1;
 		}
