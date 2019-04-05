@@ -33,6 +33,9 @@ my $starttime = "$hour:$min:$sec";
     TEMPLATE => '/tmp/audit-testsuite-cfg-XXXX',
     UNLINK   => 1
 );
+
+# Clear lost count before starting the test
+system("auditctl --reset-lost >/dev/null 2>&1");
 system("auditctl -s > $cfgout");
 
 my $result;
