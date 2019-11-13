@@ -99,7 +99,8 @@ for ( $i = 0 ; $i < $iterations ; $i++ ) {    # iteration count
     system("service auditd start >/dev/null 2>&1");
 }
 
-sleep 1;
+sleep 3;
+    system("service auditd start >/dev/null 2>&1");
 
 my $status_lost;
 if ( defined $ENV{ATS_DEBUG} && $ENV{ATS_DEBUG} == 1 ) {
